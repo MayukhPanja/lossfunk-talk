@@ -619,24 +619,28 @@
 <div class="slide" id="slide-14">
   <h2>What emerges from the equations</h2>
   <div class="two-col" style="align-items:center;">
-    <div style="flex-shrink:0;">
-      <img src="media/sunspot_3d_box.jpg"
-        style="width:450px; border-radius:6px;" alt="3D simulation box with sunspot">
-      <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-        <img src="media/sunspot_anim1.gif" style="width:420px; border-radius:4px;">
-        <img src="media/sunspot_anim2.gif" style="width:420px; border-radius:4px;">
-      </div>
-    </div>
     <div class="col-text body-text" style="font-size:15pt;">
-      This is the simulation box. The surface on top shows the granulation
-      pattern &mdash; the same structures you saw in the real footage.
+      The simulation produces <span class="orange">granulation</span> &mdash;
+      convective cells of rising hot gas surrounded by lanes of cool sinking gas,
+      matching the pattern seen on the real sun.
       <br><br>
-      Beneath the surface, the <span class="green">sunspot</span> forms a depression
-      where the strong magnetic field pushes the visible surface downward.
-      The colour shows <span class="orange">temperature</span> &mdash; hotter at the bottom, cooler near the top.
+      Where the magnetic field is strong, it suppresses the convection
+      and a <span class="green">sunspot</span> forms: a dark region with
+      radial filaments streaming outward in the penumbra.
       <br><br>
-      Every variable &mdash; velocity, pressure, temperature, magnetic field,
-      radiation &mdash; is solved at every point in this volume, at every timestep.
+      The <span class="blue">magnetic field</span> threads through the entire volume,
+      concentrating into flux tubes at the intergranular lanes
+      and funneling down beneath the sunspot.
+      <br><br>
+      All of this structure emerged from the equations alone.
+    </div>
+    <div style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:0.5rem;">
+      <img src="media/sunspot_3d_box.jpg"
+        style="width:min(40vw, 440px); border-radius:6px;" alt="3D simulation box with sunspot">
+      <div style="display:flex; gap:0.5rem;">
+        <img src="media/sunspot_anim1.gif" style="width:min(19.5vw, 215px); border-radius:4px;">
+        <img src="media/sunspot_anim2.gif" style="width:min(19.5vw, 215px); border-radius:4px;">
+      </div>
     </div>
   </div>
 </div>
@@ -656,10 +660,15 @@
       </div>
     </div>
     <div class="col-text body-text" style="font-size:15pt;">
-      The surface view of the simulation, compared to a real observation.
+      Left: simulation. Right: observation.
       <br><br>
-      The granulation, the penumbral filaments, the dark umbra &mdash;
-      all emerged from solving the equations. Nothing was put in by hand.
+      The equations produce the <span class="orange">granulation pattern</span>,
+      the <span class="green">penumbral filaments</span> streaming outward from the sunspot,
+      and the dark umbral core where convection is suppressed.
+      <br><br>
+      The match tells us that the physics we encoded &mdash; the fluid dynamics,
+      the magnetic forces, the radiative transfer &mdash; is sufficient to
+      explain what we see on the surface of a star.
     </div>
   </div>
 </div>
