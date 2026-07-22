@@ -701,6 +701,209 @@
 </div>
 
 <!-- ════════════════════════════════════════════ -->
+<!-- ACT 3+4                                      -->
+<!-- ════════════════════════════════════════════ -->
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 17: Act 3 title                        -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-17">
+  <h1>Simulating human behaviour</h1>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 18: Challenges                         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-18">
+  <h2>The challenges</h2>
+  <div class="body-text" style="font-size:15.5pt; max-width:75%; line-height:2.0;">
+    <span class="orange">Network-scale simulations are hard.</span>
+    You cannot run a controlled experiment with thousands of real people
+    interacting over many rounds. There is no ground truth for how
+    opinions should propagate through a social network, and you cannot
+    rerun society with different starting conditions.
+    <br><br>
+    <span class="green">Individual behaviour is easier to test.</span>
+    You can design a clean experiment with a known expected outcome,
+    isolate a single variable, and check whether the result matches.
+    The variable space is small: one person, one stimulus, one response.
+    <br><br>
+    <span class="blue">But even granular data is not trivial.</span>
+    Real-world behavioural data is noisy, context-dependent,
+    and expensive to collect at scale. Even well-documented effects
+    come with messy, conflicting evidence.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 19: The approach — personas            -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-19">
+  <h2>The approach: synthetic personas</h2>
+  <div class="two-col" style="align-items:flex-start;">
+    <div class="col-text body-text" style="font-size:14.5pt;">
+      We build a population of synthetic people. Each person is defined by
+      a set of demographic attributes &mdash; age, gender, income, education,
+      location, risk tolerance, values orientation &mdash; sampled from
+      real US census-weighted distributions.
+      <br><br>
+      From these attributes, a detailed <span class="orange">backstory</span> is generated:
+      who they are, where they live, how they shop, what they worry about.
+      <br><br>
+      When we run the simulation, the model only ever sees this backstory.
+      It never sees the underlying attributes in structured form.
+      It reads the story and responds <em>as that person</em>.
+      <br><br>
+      This means the model cannot simply map
+      "low income → score 4". It has to engage with a character
+      who scrutinises price tags, stacks coupons, and worries about delivery mishaps
+      &mdash; and respond accordingly.
+    </div>
+    <div class="col-text" style="flex-shrink:0; width:38%;">
+      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:1rem; font-size:10.5pt; color:#bbb; line-height:1.7; font-family:'Spectral',serif;">
+        <span style="color:#E69138; font-size:11pt;">Example persona:</span><br><br>
+        "Iftekj is a 49-year-old man living in the suburbs
+        of Phoenix, Arizona, with a modest household income under $35,000.
+        He frequents local dollar stores and grocery outlets,
+        where price tags are always scrutinised.
+        He meticulously stacks coupons and waits for sales,
+        relishing the thrill of saving a few extra dollars..."
+      </div>
+      <div style="margin-top:0.8rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:0.7rem; font-size:10pt; color:#999; font-family:'Fira Code',monospace; line-height:1.6;">
+        <span style="color:#6AA84F;">Underlying attributes:</span><br>
+        age: 49, gender: male<br>
+        education: associate's<br>
+        income: &lt;35k<br>
+        risk_tolerance: none<br>
+        location: suburban<br>
+        values: price-conscious
+      </div>
+      <div style="font-size:10pt; color:#888; margin-top:0.5rem; text-align:center;">
+        The model sees the top box.<br>It never sees the bottom box.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 20: Price charming experiment          -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-20">
+  <h2>Sanity check: price charming</h2>
+  <div class="two-col" style="align-items:flex-start;">
+    <div class="col-text body-text" style="font-size:14.5pt;">
+      <span class="orange">Price charming</span> is a well-documented effect:
+      consumers perceive €19.99 as meaningfully cheaper than €20.00,
+      despite a one-cent difference.
+      <br><br>
+      We use this as a sanity check. The effect is real, well-studied,
+      and we know what the answer should be. If our synthetic population
+      cannot reproduce something this basic, there is no point scaling up.
+    </div>
+    <div class="col-text body-text" style="font-size:14pt; line-height:2.0;">
+      <span class="green">The experiment:</span>
+      <br>
+      &bull;&ensp;Identical water bottle at <span class="blue">€20.00</span> vs <span class="orange">€19.99</span><br>
+      &bull;&ensp;Only the price changes &mdash; same product, same prompt<br>
+      &bull;&ensp;Same personas across both conditions<br>
+      &bull;&ensp;Each persona produces a purchase likelihood from 0&ndash;10<br>
+      &bull;&ensp;Double-blind &mdash; each call sees one product at one price<br>
+      &bull;&ensp;Monte Carlo: population sizes of 100, 200, 300, 400, 500<br>
+      &bull;&ensp;5 independent runs at each size
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 21: Experimental design                -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-21">
+  <h2>Experimental design</h2>
+  <div class="body-text" style="font-size:15pt; max-width:78%; line-height:1.9;">
+    <span class="orange">Problem:</span> LLMs know about price charming.
+    If the model knows it is being tested, it could simply produce the expected result.<br>
+    <span class="green">Solution:</span> <strong>Double-blind.</strong>
+    Each API call sees one product at one price. The model does not know
+    a comparison is happening. It cannot game what it does not know about.
+    <br><br>
+    <span class="orange">Problem:</span> LLMs have a positive bias.
+    "Awesome product!" and "Looks great!" are both positive &mdash;
+    in free text, you cannot tell the difference.<br>
+    <span class="green">Solution:</span> <strong>Forced 0&ndash;10 score.</strong>
+    The model has to commit to a number. "Awesome" might be an 8.
+    "Looks great but pricey" might be a 5.
+    The number forces differentiation within the positive range.
+    <br><br>
+    <span class="orange">Problem:</span> LLM outputs are stochastic.
+    The same persona might say 6 one time and 8 the next.<br>
+    <span class="green">Solution:</span> <strong>Multiple independent runs.</strong>
+    Five runs at each population size (100, 200, 300, 400, 500).
+    This separates reproducible signal from one-off noise.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 22: Price charming results             -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-22">
+  <h2>Results</h2>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:1.2rem;">
+    <table style="border-collapse:collapse; font-family:'Fira Code',monospace; font-size:12pt;">
+      <thead>
+        <tr style="border-bottom:2px solid rgba(255,255,255,0.2);">
+          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;">n</th>
+          <th style="padding:0.4rem 1.2rem; text-align:center; color:#E69138;">€19.99</th>
+          <th style="padding:0.4rem 1.2rem; text-align:center; color:#6db3f2;">€20.00</th>
+          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;">diff</th>
+          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;">p-value</th>
+          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;"></th>
+        </tr>
+      </thead>
+      <tbody style="color:#ccc;">
+        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">100</td><td style="text-align:center;">6.52</td><td style="text-align:center;">6.24</td><td style="text-align:center; color:#6AA84F;">+0.28</td><td style="text-align:center;">0.015</td><td style="text-align:center; color:#6AA84F;">&#10003;</td></tr>
+        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">200</td><td style="text-align:center;">6.53</td><td style="text-align:center;">6.32</td><td style="text-align:center; color:#6AA84F;">+0.21</td><td style="text-align:center;">0.006</td><td style="text-align:center; color:#6AA84F;">&#10003;</td></tr>
+        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">300</td><td style="text-align:center;">6.42</td><td style="text-align:center;">6.37</td><td style="text-align:center; color:#888;">+0.05</td><td style="text-align:center;">0.392</td><td style="text-align:center; color:#888;">&#10007;</td></tr>
+        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">400</td><td style="text-align:center;">6.51</td><td style="text-align:center;">6.41</td><td style="text-align:center; color:#888;">+0.10</td><td style="text-align:center;">0.052</td><td style="text-align:center; color:#888;">&#10007;</td></tr>
+        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">500</td><td style="text-align:center;">6.55</td><td style="text-align:center;">6.42</td><td style="text-align:center; color:#6AA84F;">+0.13</td><td style="text-align:center;">0.008</td><td style="text-align:center; color:#6AA84F;">&#10003;</td></tr>
+      </tbody>
+    </table>
+    <div class="body-text" style="font-size:14pt; max-width:70%; text-align:center; line-height:1.8;">
+      The charm price consistently scores higher across all population sizes.
+      The effect is small (~0.1&ndash;0.3 on a 10-point scale) but
+      statistically significant at 100, 200, and 500 personas.
+      <br><br>
+      Within-persona SD across runs: <span class="orange">0.78</span>.
+      Between-persona SD: <span class="green">1.52</span>.
+      The demographic signal is roughly twice the run-to-run noise &mdash;
+      the personas carry meaningful individual variation.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 23: What this tells us                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-23">
+  <h2 style="margin-bottom:2rem;">What this tells us</h2>
+  <div class="body-text" style="font-size:16pt; max-width:72%; line-height:2.1;">
+    <span class="green">1.</span>&ensp;LLM personas reproduce a known behavioural effect
+    at the population level. The charm pricing signal is small but real,
+    and it emerges without the model being told what to look for.
+    <br><br>
+    <span class="orange">2.</span>&ensp;The personas carry individual character.
+    Between-persona variance is larger than within-persona noise,
+    which means the demographic backstories are producing
+    meaningfully different responses &mdash; not just random scatter.
+    <br><br>
+    <span class="blue">3.</span>&ensp;This was a simple, verifiable test &mdash; one product,
+    one digit, a known answer.
+    Now we take the same personas, connect them into a social network,
+    and simulate something harder: opinion dynamics under social influence,
+    where there is no clean ground truth to check against.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
 
 <script>
 // ── Slide navigation ──
