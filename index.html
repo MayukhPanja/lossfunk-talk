@@ -937,6 +937,217 @@
 </div>
 
 <!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 24: Act 5 — Network setup              -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-24">
+  <h2>Simulating opinion dynamics on a social network</h2>
+  <div style="display:flex; gap:2.5rem; align-items:flex-start; margin-top:0.8rem;">
+
+    <!-- Left: network image -->
+    <div style="flex:0 0 42%; text-align:center;">
+      <img src="media/network_round_00.png" style="width:100%; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+      <p style="font-size:10pt; color:#888; margin-top:0.4rem; font-style:italic;">
+        200 personas, round 0. Colour = support for $20/hr minimum wage.
+      </p>
+    </div>
+
+    <!-- Right: step-by-step explanation -->
+    <div class="body-text" style="flex:1; font-size:13pt; line-height:1.85;">
+
+      <span class="orange">The network.</span>&ensp;
+      We take the same 200 personas and measure how similar any two of them are
+      across age, income, location, education, and values.
+      Each persona reaches out to the 5 people most like them &mdash;
+      but the connection isn't necessarily mutual.
+      If many people consider you similar, you end up with more connections;
+      if few do, you're more isolated.
+      Lines in the image are actual connections &mdash; information flows along them.
+      Spatial positions are a visual aid: the layout pulls connected nodes closer,
+      so clusters of similar people naturally group up.
+      <br><br>
+
+      <span class="green">How the simulation runs:</span>
+      <div style="margin-top:0.4rem; padding-left:0.2rem;">
+        <span style="color:#E69138;">1.</span>&ensp;Build the network from demographic similarity. All code, no LLM.
+        <br>
+        <span style="color:#E69138;">2.</span>&ensp;<strong>Round 0:</strong>
+        Send each persona's backstory and the policy to the LLM.
+        It reads the persona, adopts their perspective,
+        and returns an opinion with a score from 0&ndash;10.
+        No social input &mdash; everyone decides independently.
+        <br>
+        <span style="color:#E69138;">3.</span>&ensp;<strong>Rounds 1&ndash;20:</strong>
+        For each persona, the code looks up their connections and
+        collects those neighbours' opinions from the previous round.
+        It sends the persona's backstory along with what their connections think
+        to the LLM. The LLM decides: does this person shift, or dig in?
+        Returns an updated opinion and score.
+        <br>
+        <span style="color:#E69138;">4.</span>&ensp;Repeat for all 200 personas, 20 rounds.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 25: Full consensus                     -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-25">
+  <h2>Everyone listens to everyone</h2>
+  <div style="display:flex; gap:1.2rem; align-items:flex-start; margin-top:0.5rem;">
+
+    <!-- Round 0 -->
+    <div style="flex:1; text-align:center;">
+      <img src="media/consensus_round_00.png" style="width:100%; border-radius:6px;">
+      <p style="font-size:10pt; color:#888; margin-top:0.3rem;">Round 0</p>
+    </div>
+
+    <!-- Arrow -->
+    <div style="display:flex; align-items:center; font-size:24pt; color:#888; padding-top:5rem;">&rarr;</div>
+
+    <!-- Round 20 -->
+    <div style="flex:1; text-align:center;">
+      <img src="media/consensus_round_20.png" style="width:100%; border-radius:6px;">
+      <p style="font-size:10pt; color:#888; margin-top:0.3rem;">Round 20</p>
+    </div>
+
+    <!-- Text -->
+    <div style="flex:1.1; display:flex; flex-direction:column; justify-content:center;">
+      <div class="body-text" style="font-size:13pt; line-height:1.85;">
+        In this version, every persona hears all of their neighbours'
+        opinions with no filtering. After 20 rounds, everyone converges
+        to roughly the same score.
+        <br><br>
+        The network turns a uniform orange &mdash;
+        all the initial diversity of opinion is gone.
+        <br><br>
+        <span style="color:#aaa;">This is not how real populations work.
+        People don't simply average out.
+        Something is missing from the model.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Polarization plot -->
+  <div style="text-align:center; margin-top:0.5rem;">
+    <img src="media/consensus_polarization.png" style="width:70%; border-radius:6px;">
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 26: Adding bounded confidence          -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-26">
+  <h2>Adding a rule: bounded confidence</h2>
+  <div class="body-text" style="font-size:15pt; max-width:78%; line-height:2.1; margin-top:1.5rem;">
+
+    <span class="orange">The problem:</span>&ensp;
+    In the naive simulation, a strong opponent (score 2) and a strong supporter (score 8)
+    influence each other equally. In reality, people with very different views
+    don't engage &mdash; they dismiss each other.
+    <br><br>
+
+    <span class="green">The rule:</span>&ensp;
+    A persona only listens to neighbours whose score is within a fixed window
+    of their own. If someone's opinion is too far away, they ignore it.
+    <br><br>
+
+    We run this twice to see how the window size matters:
+    <br>
+    <span style="color:#E69138;">&bull;</span>&ensp;
+    <strong>&plusmn;1:</strong> very selective &mdash; you only engage with people who nearly agree with you.
+    <br>
+    <span style="color:#E69138;">&bull;</span>&ensp;
+    <strong>&plusmn;2:</strong> somewhat open &mdash; you'll listen to moderate disagreement, but not extreme views.
+    <br><br>
+
+    <span style="color:#ccc;">Same people. Same network. Same policy. We only change how much disagreement each persona will tolerate.</span>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 27: Bounded confidence results         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-27">
+  <h2>What emerges</h2>
+  <div style="display:flex; gap:2rem; align-items:flex-start; margin-top:0.4rem;">
+
+    <!-- ±1 column -->
+    <div style="flex:1;">
+      <h3 style="color:#E69138; font-size:13pt; text-align:center; margin-bottom:0.5rem;">Bounded confidence &plusmn;1</h3>
+      <div style="display:flex; gap:0.5rem; align-items:center;">
+        <img src="media/bounded_conf_round_00.png" style="width:48%; border-radius:4px;">
+        <img src="media/bounded_conf_round_20.png" style="width:48%; border-radius:4px;">
+      </div>
+      <img src="media/bounded_conf_polarization.png" style="width:100%; border-radius:4px; margin-top:0.5rem;">
+      <p class="body-text" style="font-size:11pt; color:#aaa; margin-top:0.4rem; line-height:1.6; text-align:center;">
+        SD dips then recovers to starting level.
+        Diversity is preserved &mdash; clusters resist merging.
+      </p>
+    </div>
+
+    <!-- ±2 column -->
+    <div style="flex:1;">
+      <h3 style="color:#E69138; font-size:13pt; text-align:center; margin-bottom:0.5rem;">Bounded confidence &plusmn;2</h3>
+      <div style="display:flex; gap:0.5rem; align-items:center;">
+        <img src="media/bounded_conf_2_round_00.png" style="width:48%; border-radius:4px;">
+        <img src="media/bounded_conf_2_round_20.png" style="width:48%; border-radius:4px;">
+      </div>
+      <img src="media/bounded_conf_2_polarization.png" style="width:100%; border-radius:4px; margin-top:0.5rem;">
+      <p class="body-text" style="font-size:11pt; color:#aaa; margin-top:0.4rem; line-height:1.6; text-align:center;">
+        SD grows <em>beyond</em> the starting point.
+        The wider window allows local consensus to form,
+        which pushes groups apart &mdash; mild polarization emerges.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 28: Closing                            -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-28">
+  <h2 style="margin-bottom:1.5rem;">Closing remarks</h2>
+  <div class="body-text" style="font-size:14.5pt; max-width:76%; line-height:2.1;">
+
+    &bull;&ensp;The same principles apply across these simulations.
+    In each case, we define agents and the rules they follow.
+    The outcomes are not prescribed &mdash; they arise as consequences of the rules.
+    <br><br>
+
+    &bull;&ensp;By introducing rules one at a time, we can begin to attribute
+    specific outcomes to specific causes. Magnetic fields and convection
+    produce sunspots. Bounded confidence preserves opinion diversity.
+    <br><br>
+
+    &bull;&ensp;However, the domains differ in an important respect:
+    the availability of observational data.
+    <br><br>
+
+    &bull;&ensp;In astrophysics, we have decades of resolved imagery,
+    magnetograms, and spectral measurements.
+    We can place a simulation beside an observation
+    and assess whether the two agree.
+    <br><br>
+
+    &bull;&ensp;In human behaviour, this is far more difficult.
+    We used price charming precisely because the expected direction
+    of the effect is well established.
+    For opinion dynamics, there is no equivalent benchmark.
+    <br><br>
+
+    &bull;&ensp;The simulation methodology generalises across domains.
+    The ability to validate becomes progressively harder
+    as we move from physical systems, where measurement is mature,
+    to social systems, where ground truth is scarce.
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
 
 <script>
 // ── Slide navigation ──
