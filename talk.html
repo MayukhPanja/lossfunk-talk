@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulations of Reality: Physics and AI</title>
+<!-- KaTeX for LaTeX rendering -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Spectral', serif;
+    background: #1a1a2e;
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    padding: 5vh 8vw;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  h1 {
+    font-size: 45pt;
+    font-weight: 500;
+    color: #E69138;
+    margin-bottom: 0.8rem;
+    text-align: center;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 24pt;
+    font-weight: 500;
+    color: #E69138;
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+  .author {
+    font-size: 18pt;
+    font-weight: 400;
+    color: #ffffff;
+    margin-top: 1.5rem;
+  }
+  .body-text {
+    font-size: 16pt;
+    font-weight: 400;
+    color: #ffffff;
+    line-height: 1.75;
+    max-width: 75%;
+    text-align: left;
+  }
+  .green { color: #6AA84F; }
+  .orange { color: #E69138; }
+  .blue { color: #6db3f2; }
+
+  /* ── Equation box ── */
+  .equation-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.2rem 0;
+  }
+  .equation-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 1rem 2.5rem;
+    font-size: 22pt;
+  }
+  .eq-labels {
+    display: flex;
+    gap: 4rem;
+    font-size: 11pt;
+    color: #888;
+  }
+
+  /* ── Equation stack (MHD slide) ── */
+  .eq-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    align-items: flex-start;
+    max-width: 92%;
+  }
+  .eq-row {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .eq-row .equation-box {
+    font-size: 14pt;
+    padding: 0.5rem 1.2rem;
+  }
+  .eq-desc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .eq-row .eq-label {
+    font-size: 13pt;
+    color: #6AA84F;
+    white-space: nowrap;
+  }
+  .eq-row .eq-detail {
+    font-size: 10.5pt;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  /* KaTeX color overrides */
+  .katex .t-blue { color: #6db3f2; }
+  .katex .t-orange { color: #E69138; }
+  .katex .t-green { color: #6AA84F; }
+
+  /* ── Star canvas ── */
+  #canvas-star {
+    width: 450px;
+    height: 450px;
+  }
+
+  /* ── 3D grid ── */
+  .grid3d-wrap {
+    width: 320px;
+    height: 260px;
+  }
+  .grid3d-wrap canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Canvas ── */
+  .canvas-wrap {
+    position: relative;
+    width: min(75vw, 850px);
+    height: min(28vh, 280px);
+    margin: 0.6rem 0;
+  }
+  .canvas-wrap canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+  }
+  .canvas-label {
+    text-align: center;
+    font-size: 11pt;
+    color: #888;
+    margin-top: 0.3rem;
+  }
+  .canvas-pair {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    justify-content: center;
+    width: min(88vw, 1050px);
+  }
+  .canvas-pair .canvas-wrap {
+    width: min(40vw, 480px);
+  }
+
+  /* ── Pendulum diagram ── */
+  .pendulum-wrap {
+    width: 220px;
+    height: 220px;
+    flex-shrink: 0;
+  }
+
+  /* ── Two-column layout ── */
+  .two-col {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    justify-content: center;
+    max-width: 90%;
+  }
+  .two-col .col-text {
+    flex: 1;
+  }
+
+  /* ── Remark ── */
+  .remark {
+    font-size: 14pt;
+    font-weight: 400;
+    color: #cccccc;
+    margin-top: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    font-style: italic;
+    max-width: 80%;
+    text-align: center;
+  }
+  .remark.visible { opacity: 1; }
+  .remark .green, .remark .orange { font-style: normal; }
+
+  .gamma-display {
+    font-family: 'Fira Code', monospace;
+    font-size: 16pt;
+    color: #E69138;
+    margin-top: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .gamma-display.visible { opacity: 1; }
+
+  .slide-counter {
+    position: fixed;
+    bottom: 2vh;
+    right: 3vw;
+    font-size: 9pt;
+    color: #444;
+    font-family: 'Fira Code', monospace;
+    z-index: 100;
+  }
+
+  .fade-in {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .fade-in.visible { opacity: 1; }
+
+  .bridge-text {
+    font-size: 20pt;
+    font-weight: 400;
+    text-align: left;
+    line-height: 1.9;
+    max-width: 70%;
+    color: #ffffff;
+  }
+</style>
+</head>
+<body>
+
+<div class="slide-counter"><span id="slideNum">1</span> / <span id="slideTotal"></span></div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 1: Title                              -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide active" id="slide-1">
+  <h1>Simulations of Reality</h1>
+  <h2 style="color:#ccc; font-weight:300;">Physics and AI</h2>
+  <div class="author">Mayukh Panja</div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 2: What is a differential equation    -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-2">
+  <h2>Differential equations</h2>
+  <div class="body-text">
+    In physics, we describe the world by writing down <span class="green">rules</span> for how
+    quantities change with space and time.
+    <br><br>
+    The notation $\dfrac{dx}{dt}$ means the rate of change of $x$ with respect to time &mdash;
+    if $x$ is position, then $\dfrac{dx}{dt}$ is velocity, and $\dfrac{d^2x}{dt^2}$ is acceleration.
+    <br><br>
+    A <span class="green">differential equation</span> is a relationship between a variable and its rates of change.
+    If we know the rule, we can solve for the full behaviour of the system &mdash; past and future.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 3: The pendulum setup                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-3">
+  <h2>Example: a pendulum</h2>
+  <div class="two-col">
+    <div class="pendulum-wrap">
+      <canvas id="canvas-pendulum" width="440" height="440"></canvas>
+    </div>
+    <div class="col-text body-text" style="font-size:15pt;">
+      Let $x$ be the displacement of the bob from the centre.
+      <br><br>
+      From Newton's second law, $F = ma$.
+      The acceleration of the bob is $\dfrac{d^2x}{dt^2}$, and the restoring force pulls it
+      back towards the centre, proportional to $x$.
+      <br><br>
+      This gives us a differential equation:
+      <div class="equation-block" style="margin-top:1rem;">
+        <div class="equation-box">
+          $\displaystyle \textcolor{#6db3f2}{\frac{d^2x}{dt^2}} + \textcolor{#6AA84F}{\omega^2 x} = 0$
+        </div>
+        <div class="eq-labels">
+          <span class="blue">acceleration</span>
+          <span class="green">restoring force</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 4: Undamped solution                  -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-4">
+  <h2>Solution: simple harmonic motion</h2>
+  <div class="body-text" style="text-align:center; font-size:14pt; margin-bottom:0.3rem; max-width:80%;">
+    Solving the equation gives $x(t) = A\cos(\omega t)$. The bob oscillates back and forth,
+    and $x(t)$ is its displacement from the centre over time:
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="canvas-undamped"></canvas>
+  </div>
+  <div class="remark fade-in" id="remark-undamped">
+    The solution oscillates forever. No energy is lost &mdash; this is not what a real pendulum does.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 5: Damped                             -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-5">
+  <h2>Adding a term: air resistance</h2>
+  <div class="body-text" style="max-width:85%; text-align:center; font-size:14pt; margin-bottom:0.3rem;">
+    A real pendulum loses energy to friction. The drag force opposes the velocity $\dfrac{dx}{dt}$,
+    so we add a <span class="orange">damping term</span>:
+  </div>
+  <div class="equation-block">
+    <div class="equation-box">
+      $\displaystyle \textcolor{#6db3f2}{\frac{d^2x}{dt^2}} + \textcolor{#E69138}{\gamma\frac{dx}{dt}} + \textcolor{#6AA84F}{\omega^2 x} = 0$
+    </div>
+    <div class="eq-labels">
+      <span class="blue">acceleration</span>
+      <span class="orange">damping</span>
+      <span class="green">restoring force</span>
+    </div>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="canvas-damped"></canvas>
+  </div>
+  <div class="remark fade-in" id="remark-damped">
+    The oscillation decays. One additional term and the model is already more realistic.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 6: Tuning gamma                       -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-6">
+  <h2>Fitting the coefficient to data</h2>
+  <div class="body-text" style="max-width:85%; text-align:center; font-size:14pt; margin-bottom:0.5rem;">
+    The coefficient $\textcolor{#E69138}{\gamma}$ controls how fast energy is lost.
+    We vary it until the simulation matches the measured data.
+  </div>
+  <div class="canvas-pair">
+    <div>
+      <div class="canvas-wrap">
+        <canvas id="canvas-tuning"></canvas>
+      </div>
+      <div class="canvas-label">Simulation (varying $\textcolor{#E69138}{\gamma}$)</div>
+    </div>
+    <div>
+      <div class="canvas-wrap">
+        <canvas id="canvas-reality"></canvas>
+      </div>
+      <div class="canvas-label">Observation</div>
+    </div>
+  </div>
+  <div class="gamma-display visible" id="gamma-readout">&gamma; = 0.00</div>
+  <div class="remark fade-in" id="remark-tuning">
+    When the fit is good, $\gamma$ is itself a measurement &mdash; it <em>is</em> the air resistance.
+    Each term in the equation encodes something about the real world.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 7: Numerical solving                  -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-7">
+  <h2>Solving equations numerically</h2>
+  <div class="two-col" style="align-items:flex-start;">
+    <div class="col-text body-text" style="font-size:14pt;">
+      The damped pendulum can be solved analytically &mdash; we can write down a formula.
+      Most equations in physics cannot. Instead, we solve them <span class="orange">numerically</span>.
+      <br><br>
+      The idea is to approximate the derivative. We replace the continuous
+      $\dfrac{dx}{dt}$ with a discrete step:
+      <div class="equation-block" style="margin:1rem 0;">
+        <div class="equation-box" style="font-size:16pt; padding:0.8rem 1.5rem;">
+          $\displaystyle \frac{dx}{dt} \;\approx\; \frac{x(t + \Delta t) \;-\; x(t)}{\Delta t}$
+        </div>
+      </div>
+      This turns the differential equation into an <span class="green">update rule</span>:
+      given the current value $x_n$, compute the next value $x_{n+1}$.
+      <br><br>
+      Then we iterate &mdash; step by step, each point computed from the one before it.
+      Smaller $\Delta t$ gives a more accurate answer.
+    </div>
+    <div style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:0.5rem;">
+      <div style="width:380px; height:300px;">
+        <canvas id="canvas-euler"></canvas>
+      </div>
+      <div style="font-size:10pt; color:#888;">Numerical solution built point by point</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 8: What is a PDE                      -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-8">
+  <h2>Partial differential equations</h2>
+  <div class="body-text" style="font-size:14.5pt; max-width:85%; text-align:left; margin-bottom:0.8rem;">
+    So far, our variable $x$ only changed in <span class="blue">time</span>.
+    In most physical systems, quantities also vary in <span class="green">space</span>.
+    <br><br>
+    $\nabla^2$ (nabla-squared, or the Laplacian) is the spatial equivalent of what we saw before &mdash;
+    it is the second derivative, but now in space instead of time.
+    In one dimension, $\nabla^2 T = \dfrac{\partial^2 T}{\partial x^2}$.
+    In three dimensions, it acts in all directions:
+    $\nabla^2 T = \dfrac{\partial^2 T}{\partial x^2} + \dfrac{\partial^2 T}{\partial y^2} + \dfrac{\partial^2 T}{\partial z^2}$.
+    <br><br>
+    The <span class="orange">diffusion equation</span> uses this to describe how heat spreads:
+  </div>
+  <div class="equation-block" style="margin:0.5rem 0;">
+    <div class="equation-box" style="font-size:18pt;">
+      $\displaystyle \frac{\partial T}{\partial t} = \kappa \,\nabla^2 T$
+    </div>
+    <div class="eq-labels">
+      <span class="blue">change in time</span>
+      <span style="width:2rem;"></span>
+      <span class="green">second derivative in space &mdash; how T curves relative to its neighbours</span>
+    </div>
+  </div>
+  <div style="display:flex; gap:2.5rem; align-items:flex-start; justify-content:center; margin-top:0.8rem;">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0.3rem;">
+      <div style="width:320px; height:260px; position:relative;">
+        <canvas id="canvas-diffusion2d"></canvas>
+      </div>
+      <div style="font-size:10pt; color:#888;">2D diffusion: a hot spot spreading over time</div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0.3rem;">
+      <div class="grid3d-wrap">
+        <canvas id="canvas-grid3d" width="640" height="560"></canvas>
+      </div>
+      <div style="font-size:10pt; color:#888;">In 3D, we solve this at every cell in the grid,<br>at every timestep</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 9: Takeaways / bridge                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-9">
+  <h2 style="margin-bottom:2rem;">The blueprint for simulation</h2>
+  <div class="body-text" style="font-size:16pt; max-width:72%; line-height:2.1;">
+    <span class="green">1.</span>&ensp;Differential equations are <span class="green">rules</span> for how quantities
+    change in space and time.
+    <br><br>
+    <span class="orange">2.</span>&ensp;Adding terms to the equation adds realism.
+    Tuning the coefficients to match observations reveals information
+    about the world &mdash; the terms <em>are</em> the understanding.
+    <br><br>
+    <span class="blue">3.</span>&ensp;The recipe: <span class="blue">write down rules</span>,
+    solve them, and compare to observation.
+    If it matches, the model has captured something true.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ACT 2                                        -->
+<!-- ════════════════════════════════════════════ -->
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 10: Act 2 title                        -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-10">
+  <h1>Simulating a slice of a star</h1>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 11: Box-in-a-star setup                -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-11">
+  <h2>The setup</h2>
+  <div class="two-col" style="align-items:center;">
+    <div style="flex-shrink:0;">
+      <canvas id="canvas-star" width="900" height="900"></canvas>
+    </div>
+    <div class="col-text body-text" style="font-size:15pt;">
+      A star is a sphere of hot plasma, hundreds of thousands of kilometres across.
+      <br><br>
+      We cannot simulate the whole thing. Instead, we take a small
+      <span class="orange">rectangular patch</span> at the surface &mdash; a few thousand kilometres
+      on each side, extending a little below and above the visible surface.
+      <br><br>
+      Inside this box, we solve the full set of
+      <span class="green">radiative magnetohydrodynamic equations</span>
+      on a 3D grid: conservation of mass, momentum, energy,
+      the induction equation for magnetic fields, and radiative transfer.
+      <br><br>
+      The box is small enough to resolve the fine structure,
+      but the physics inside it is complete.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 12: The equations inside the box      -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-12">
+  <h2>What are we solving?</h2>
+  <div class="eq-stack">
+    <div class="eq-row">
+      <div class="equation-box">
+        $\displaystyle \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) = 0$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Mass</span>
+        <span class="eq-detail">matter is neither created nor destroyed</span>
+      </div>
+    </div>
+    <div class="eq-row">
+      <div class="equation-box">
+        $\displaystyle \rho \frac{\partial \mathbf{v}}{\partial t} + \rho(\mathbf{v} \cdot \nabla)\mathbf{v} = -\nabla p + \frac{1}{4\pi}(\nabla \times \mathbf{B}) \times \mathbf{B} + \rho \mathbf{g}$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Momentum</span>
+        <span class="eq-detail">pressure, magnetic forces, and gravity accelerate the plasma</span>
+      </div>
+    </div>
+    <div class="eq-row">
+      <div class="equation-box">
+        $\displaystyle \frac{\partial e}{\partial t} + \nabla \cdot \!\left[\mathbf{v}\!\left(e + p + \frac{|\mathbf{B}|^2}{8\pi}\right) - \frac{\mathbf{B}(\mathbf{v} \cdot \mathbf{B})}{4\pi}\right] = \rho \mathbf{g} \cdot \mathbf{v} + Q_{\text{rad}}$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Energy</span>
+        <span class="eq-detail">tracking heat, including magnetic and radiative contributions</span>
+      </div>
+    </div>
+    <div class="eq-row">
+      <div class="equation-box">
+        $\displaystyle \frac{\partial \mathbf{B}}{\partial t} = \nabla \times (\mathbf{v} \times \mathbf{B})$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Induction</span>
+        <span class="eq-detail">the flow drags and distorts the magnetic field</span>
+      </div>
+    </div>
+    <div class="eq-row">
+      <div class="equation-box">
+        $\displaystyle T = T(e, \varrho), \quad p = p(e, \varrho)$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Equation of state</span>
+        <span class="eq-detail">connecting temperature and pressure to density</span>
+      </div>
+    </div>
+    <div class="eq-row" style="margin-top:0.2rem; padding-top:0.3rem; border-top:1px solid rgba(255,255,255,0.06);">
+      <div class="equation-box">
+        $\displaystyle \frac{dI_\nu}{d\tau_\nu} = S_\nu - I_\nu$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Radiative transfer</span>
+        <span class="eq-detail">how light propagates through the plasma</span>
+      </div>
+    </div>
+    <div class="eq-row">
+      <div class="equation-box">
+        $\displaystyle Q_{\text{rad}} = \int_\mu \nabla \cdot \!\left(\int_{4\pi} I_\nu\,\boldsymbol{\mu}\,d\omega\right) d\mu$
+      </div>
+      <div class="eq-desc">
+        <span class="eq-label">Radiative heating / cooling</span>
+        <span class="eq-detail">how radiation heats and cools the gas</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 13: Sunspot video                     -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-13">
+  <h2>What we're trying to reproduce</h2>
+  <div class="two-col" style="align-items:center;">
+    <div style="flex-shrink:0;">
+      <video id="sunspot-video" src="media/sunspot-recording.mp4" muted loop playsinline
+        style="width:480px; border-radius:6px; background:#000;"></video>
+    </div>
+    <div class="col-text body-text" style="font-size:15pt;">
+      This is real footage of the solar surface.
+      <br><br>
+      The bright cells are <span class="orange">granules</span> &mdash; columns of hot gas
+      rising from below. The dark lanes between them are where
+      cooler gas sinks back down. Each granule is roughly the size of France.
+      <br><br>
+      The dark region is a <span class="green">sunspot</span>. Strong magnetic fields
+      there suppress the convection, so less heat reaches the surface
+      and it appears dark by contrast.
+      <br><br>
+      Can our equations produce something that looks like this?
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 14: 3D simulation box                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-14">
+  <h2>What emerges from the equations</h2>
+  <div class="two-col" style="align-items:center;">
+    <div style="flex-shrink:0;">
+      <img src="media/sunspot_3d_box.jpg"
+        style="width:450px; border-radius:6px;" alt="3D simulation box with sunspot">
+      <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <img src="media/sunspot_anim1.gif" style="width:220px; border-radius:4px;">
+        <img src="media/sunspot_anim2.gif" style="width:220px; border-radius:4px;">
+      </div>
+    </div>
+    <div class="col-text body-text" style="font-size:15pt;">
+      This is the simulation box. The surface on top shows the granulation
+      pattern &mdash; the same structures you saw in the real footage.
+      <br><br>
+      Beneath the surface, the <span class="green">sunspot</span> forms a depression
+      where the strong magnetic field pushes the visible surface downward.
+      The colour shows <span class="orange">temperature</span> &mdash; hotter at the bottom, cooler near the top.
+      <br><br>
+      Every variable &mdash; velocity, pressure, temperature, magnetic field,
+      radiation &mdash; is solved at every point in this volume, at every timestep.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 15: Simulation vs observation          -->
+<!-- ════════════════════════════════════════════ -->
+<div class="slide" id="slide-15">
+  <h2>Simulation vs observation</h2>
+  <div class="two-col" style="align-items:center;">
+    <div style="flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:0.4rem;">
+      <img src="media/sunspot_composite.png"
+        style="width:400px; border-radius:6px;" alt="Simulation vs observation composite">
+      <div style="display:flex; justify-content:center; gap:3rem; font-size:11pt; width:400px;">
+        <span style="color:#E69138; text-align:center;">MURaM simulation<br><span style="font-size:9pt; color:#999;">(Matthias Rempel)</span></span>
+        <span style="color:#6AA84F; text-align:center;">G band observation<br><span style="font-size:9pt; color:#999;">(F. Wöger, NSO)</span></span>
+      </div>
+    </div>
+    <div class="col-text body-text" style="font-size:15pt;">
+      The surface view of the simulation, compared to a real observation.
+      <br><br>
+      The granulation, the penumbral filaments, the dark umbra &mdash;
+      all emerged from solving the equations. Nothing was put in by hand.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+
+<script>
+// ── Slide navigation ──
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let current = 0;
+document.getElementById('slideTotal').textContent = totalSlides;
+
+function goTo(n) {
+  if (n < 0 || n >= totalSlides) return;
+  slides[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  document.getElementById('slideNum').textContent = current + 1;
+  onSlideEnter(current);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    goTo(current + 1);
+  }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    goTo(current - 1);
+  }
+});
+
+// ── Animation state ──
+let animFrames = {};
+function stopAnim(name) {
+  if (animFrames[name]) {
+    cancelAnimationFrame(animFrames[name]);
+    animFrames[name] = null;
+  }
+}
+
+// ── Canvas helpers ──
+function setupCanvas(canvas) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, w: rect.width, h: rect.height };
+}
+
+function drawAxes(ctx, w, h) {
+  const midY = h / 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(50, midY); ctx.lineTo(w - 20, midY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(50, 25); ctx.lineTo(50, h - 25); ctx.stroke();
+  ctx.fillStyle = '#555';
+  ctx.font = '13px Spectral';
+  ctx.textAlign = 'center';
+  ctx.fillText('time', w - 30, midY + 18);
+  ctx.textAlign = 'right';
+  ctx.fillText('x(t)', 45, 18);
+  ctx.fillStyle = '#444';
+  ctx.fillText('0', 44, midY + 4);
+}
+
+function drawCurve(ctx, w, h, fn, tMax, progress, color, lw) {
+  const midY = h / 2;
+  const ampPx = (h / 2) - 35;
+  const x0 = 50, x1 = w - 20, totalPx = x1 - x0;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw || 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  const steps = Math.floor(progress * 600);
+  for (let i = 0; i <= steps; i++) {
+    const frac = i / 600;
+    const t = frac * tMax;
+    const px = x0 + frac * totalPx;
+    const py = midY - fn(t) * ampPx;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
+
+function drawEnvelope(ctx, w, h, gamma, tMax, color) {
+  const midY = h / 2;
+  const ampPx = (h / 2) - 35;
+  const x0 = 50, x1 = w - 20, totalPx = x1 - x0;
+  ctx.strokeStyle = color; ctx.lineWidth = 1;
+  ctx.setLineDash([5, 5]); ctx.globalAlpha = 0.35;
+  for (let sign of [1, -1]) {
+    ctx.beginPath();
+    for (let i = 0; i <= 600; i++) {
+      const frac = i / 600; const t = frac * tMax;
+      const px = x0 + frac * totalPx;
+      const py = midY - sign * Math.exp(-gamma * t / 2) * ampPx;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.setLineDash([]); ctx.globalAlpha = 1.0;
+}
+
+// ── Physics ──
+const omega = 2 * Math.PI * 0.8;
+const tMax = 8;
+const gammaTrue = 0.7;
+
+function undampedFn(t) { return Math.cos(omega * t); }
+function dampedFn(t, g) {
+  const gv = g || gammaTrue;
+  const wp = Math.sqrt(Math.max(omega * omega - (gv * gv) / 4, 0.01));
+  return Math.exp(-gv * t / 2) * Math.cos(wp * t);
+}
+
+// ── Euler method step-by-step animation ──
+function animateEuler() {
+  stopAnim('euler');
+  const canvas = document.getElementById('canvas-euler');
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const W = parent.clientWidth, H = parent.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Numerically solve damped oscillator using Euler's method
+  const dt = 0.12;
+  const nSteps = Math.floor(tMax / dt);
+  const eulerPts = [];
+  let xn = 1.0, vn = 0.0; // initial: x=1, v=0
+  for (let i = 0; i <= nSteps; i++) {
+    eulerPts.push({ t: i * dt, x: xn });
+    const a = -omega * omega * xn - gammaTrue * vn;
+    vn = vn + a * dt;
+    xn = xn + vn * dt;
+  }
+
+  const midY = H / 2;
+  const ampPx = (H / 2) - 30;
+  const x0 = 50, x1 = W - 20, totalPx = x1 - x0;
+
+  let startTime = null;
+  const ptDur = 60; // ms per point
+  const totalDur = nSteps * ptDur;
+
+  function frame(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+    const showN = Math.min(Math.floor(elapsed / ptDur), nSteps);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // axes
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, midY); ctx.lineTo(x1, midY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x0, 20); ctx.lineTo(x0, H - 20); ctx.stroke();
+    ctx.fillStyle = '#555'; ctx.font = '12px Spectral'; ctx.textAlign = 'center';
+    ctx.fillText('t', x1 + 10, midY + 5);
+    ctx.textAlign = 'right'; ctx.fillText('x', x0 - 8, 20);
+
+    // faint analytical solution for comparison
+    ctx.globalAlpha = 0.15;
+    ctx.strokeStyle = '#6AA84F'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i <= 600; i++) {
+      const frac = i / 600; const t = frac * tMax;
+      const px = x0 + frac * totalPx;
+      const py = midY - dampedFn(t, gammaTrue) * ampPx;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // draw numerical points and connecting lines
+    if (showN > 0) {
+      // connecting line segments
+      ctx.strokeStyle = '#E69138'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i = 0; i <= showN; i++) {
+        const pt = eulerPts[i];
+        const px = x0 + (pt.t / tMax) * totalPx;
+        const py = midY - pt.x * ampPx;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      // dots at each computed point
+      for (let i = 0; i <= showN; i++) {
+        const pt = eulerPts[i];
+        const px = x0 + (pt.t / tMax) * totalPx;
+        const py = midY - pt.x * ampPx;
+        ctx.fillStyle = '#E69138';
+        ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // highlight the newest point
+      const last = eulerPts[showN];
+      const lpx = x0 + (last.t / tMax) * totalPx;
+      const lpy = midY - last.x * ampPx;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(lpx, lpy, 4.5, 0, Math.PI * 2); ctx.fill();
+
+      // show step label
+      ctx.fillStyle = '#888'; ctx.font = '11px Fira Code'; ctx.textAlign = 'left';
+      ctx.fillText(`step ${showN}/${nSteps}`, x0 + 5, H - 8);
+    }
+
+    if (showN < nSteps) {
+      animFrames['euler'] = requestAnimationFrame(frame);
+    }
+  }
+  animFrames['euler'] = requestAnimationFrame(frame);
+}
+
+// ── 2D Diffusion animation ──
+function animateDiffusion2D() {
+  stopAnim('diffusion2d');
+  const canvas = document.getElementById('canvas-diffusion2d');
+  const parent = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const W = parent.clientWidth, H = parent.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Grid for diffusion
+  const N = 80;
+  const dx = 1.0;
+  const kappa = 0.01; // slow diffusion
+  const dtDiff = (dx * dx) / (4 * kappa) * 0.9; // stability
+  let T = [];
+  for (let i = 0; i < N; i++) {
+    T[i] = [];
+    for (let j = 0; j < N; j++) {
+      T[i][j] = 0;
+    }
+  }
+  // Initial hot spot in centre — Gaussian blob for smooth spreading
+  const ctr = Math.floor(N / 2);
+  const sigma = 3.0;
+  for (let i = 0; i < N; i++)
+    for (let j = 0; j < N; j++) {
+      const r2 = (i - ctr) * (i - ctr) + (j - ctr) * (j - ctr);
+      T[i][j] = Math.exp(-r2 / (2 * sigma * sigma));
+    }
+
+  let stepCount = 0;
+  const stepsPerFrame = 2; // fewer steps per frame = slower
+
+  function diffuseStep() {
+    const Tn = [];
+    for (let i = 0; i < N; i++) {
+      Tn[i] = [];
+      for (let j = 0; j < N; j++) {
+        const ip = Math.min(i + 1, N - 1), im = Math.max(i - 1, 0);
+        const jp = Math.min(j + 1, N - 1), jm = Math.max(j - 1, 0);
+        const laplacian = T[ip][j] + T[im][j] + T[i][jp] + T[i][jm] - 4 * T[i][j];
+        Tn[i][j] = T[i][j] + kappa * dtDiff * laplacian / (dx * dx);
+      }
+    }
+    T = Tn;
+  }
+
+  function drawField() {
+    const imgData = ctx.createImageData(W * dpr, H * dpr);
+    // We'll draw at native resolution
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const gi = Math.floor((py / H) * N);
+        const gj = Math.floor((px / W) * N);
+        const val = Math.min(T[gi][gj], 1.0);
+        // color map: dark blue -> white -> orange
+        let r, g, b;
+        if (val < 0.5) {
+          const t = val / 0.5;
+          r = Math.floor(26 + t * 200);
+          g = Math.floor(26 + t * 160);
+          b = Math.floor(46 + t * 200);
+        } else {
+          const t = (val - 0.5) / 0.5;
+          r = Math.floor(226 + t * 29);
+          g = Math.floor(186 - t * 41);
+          b = Math.floor(246 - t * 190);
+        }
+        // write at dpr scale
+        for (let dy = 0; dy < dpr; dy++) {
+          for (let ddx = 0; ddx < dpr; ddx++) {
+            const idx = ((py * dpr + dy) * W * dpr + (px * dpr + ddx)) * 4;
+            imgData.data[idx] = r;
+            imgData.data[idx + 1] = g;
+            imgData.data[idx + 2] = b;
+            imgData.data[idx + 3] = 255;
+          }
+        }
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // overlay faint grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 0.5;
+    const gridStep = W / 10;
+    for (let i = 1; i < 10; i++) {
+      ctx.beginPath(); ctx.moveTo(i * gridStep, 0); ctx.lineTo(i * gridStep, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * gridStep); ctx.lineTo(W, i * gridStep); ctx.stroke();
+    }
+
+    // step counter
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '10px Fira Code'; ctx.textAlign = 'left';
+    ctx.fillText(`t = ${stepCount}`, 5, H - 5);
+  }
+
+  function frame() {
+    for (let s = 0; s < stepsPerFrame; s++) { diffuseStep(); stepCount++; }
+    drawField();
+    if (stepCount < 400) {
+      animFrames['diffusion2d'] = requestAnimationFrame(frame);
+    } else {
+      // reset and loop
+      stepCount = 0;
+      for (let i = 0; i < N; i++)
+        for (let j = 0; j < N; j++) {
+          const r2 = (i - ctr) * (i - ctr) + (j - ctr) * (j - ctr);
+          T[i][j] = Math.exp(-r2 / (2 * sigma * sigma));
+        }
+      setTimeout(() => { animFrames['diffusion2d'] = requestAnimationFrame(frame); }, 800);
+    }
+  }
+  drawField(); // initial state
+  setTimeout(() => { animFrames['diffusion2d'] = requestAnimationFrame(frame); }, 500);
+}
+
+// ── 3D Grid drawing (slowly rotating, bright) ──
+function animateGrid3D() {
+  const canvas = document.getElementById('canvas-grid3d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = 320, H = 260;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const N = 6, cellSize = 26;
+  const cxG = W / 2, cyG = H / 2 + 5;
+
+  function project(x, y, z, angle) {
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const rx = x * cos - z * sin;
+    const rz = x * sin + z * cos;
+    return [cxG + rx * 0.85, cyG - y * 0.7 + rz * 0.42, rz];
+  }
+
+  function frame(ts) {
+    const angle = ts / 14000;
+    ctx.clearRect(0, 0, W, H);
+    const half = (N * cellSize) / 2;
+    const lines = [];
+
+    for (let i = 0; i <= N; i++) {
+      for (let j = 0; j <= N; j++) {
+        const a = -half + i * cellSize, b = -half + j * cellSize;
+        // Z lines
+        let [x1,y1,d1] = project(a,b,-half,angle), [x2,y2,d2] = project(a,b,half,angle);
+        lines.push({x1,y1,x2,y2,d:(d1+d2)/2});
+        // X lines
+        [x1,y1,d1] = project(-half,b,a,angle); [x2,y2,d2] = project(half,b,a,angle);
+        lines.push({x1,y1,x2,y2,d:(d1+d2)/2});
+        // Y lines
+        [x1,y1,d1] = project(a,-half,b,angle); [x2,y2,d2] = project(a,half,b,angle);
+        lines.push({x1,y1,x2,y2,d:(d1+d2)/2});
+      }
+    }
+    lines.sort((a,b) => a.d - b.d);
+
+    ctx.lineWidth = 0.5;
+    for (const l of lines) {
+      const fade = 0.15 + 0.45 * (1 - (l.d + half) / (2 * half));
+      ctx.strokeStyle = `rgba(255,255,255,${fade})`;
+      ctx.beginPath(); ctx.moveTo(l.x1,l.y1); ctx.lineTo(l.x2,l.y2); ctx.stroke();
+    }
+
+    // axis labels
+    const [lx,ly] = project(half + 15, -half, -half, angle);
+    const [ly2,lyy] = project(-half, half + 15, -half, angle);
+    const [lz,lzy] = project(-half, -half, half + 15, angle);
+    ctx.fillStyle = '#888'; ctx.font = '11px Spectral'; ctx.textAlign = 'center';
+    ctx.fillText('x', lx, ly); ctx.fillText('y', ly2, lyy); ctx.fillText('z', lz, lzy);
+
+    animFrames['grid3d'] = requestAnimationFrame(frame);
+  }
+  animFrames['grid3d'] = requestAnimationFrame(frame);
+}
+
+// ── Box-in-a-star 3D rendering ──
+function animateStar() {
+  stopAnim('star');
+  const canvas = document.getElementById('canvas-star');
+  const dpr = window.devicePixelRatio || 1;
+  const W = 450, H = 450;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = W / 2, cy = H / 2;
+  const R = 180; // star radius in px
+
+  // Box dimensions (angular extent on the sphere)
+  const boxAngW = 0.28; // radians width
+  const boxAngH = 0.28; // radians height
+  const boxDepth = 18;  // pixels depth into star
+  const boxHeight = 12; // pixels above surface
+
+  function frame(ts) {
+    const rot = Math.sin(ts / 6000) * 0.4; // gentle oscillation, stays visible
+    ctx.clearRect(0, 0, W, H);
+
+    // ── Draw the star sphere ──
+    // Radial gradient to give 3D feel
+    const grad = ctx.createRadialGradient(cx - 30, cy - 30, R * 0.05, cx, cy, R);
+    grad.addColorStop(0, 'rgba(60,55,70,0.9)');
+    grad.addColorStop(0.7, 'rgba(30,28,40,0.95)');
+    grad.addColorStop(1, 'rgba(15,14,22,1)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Limb (edge glow)
+    ctx.strokeStyle = 'rgba(200,180,140,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Subtle surface texture — faint latitude/longitude lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 0.5;
+    // latitude lines
+    for (let lat = -60; lat <= 60; lat += 30) {
+      const latRad = lat * Math.PI / 180;
+      const ry = R * Math.sin(latRad);
+      const rx = R * Math.cos(latRad);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - ry, rx, Math.abs(rx * 0.15), 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // ── Compute box position on sphere surface ──
+    // Place the box near the top of the visible hemisphere
+    const boxLat = 0.6; // radians from equator (toward top)
+    const boxLon = rot;  // slowly rotates with the star
+
+    // 3D position of box centre on sphere surface
+    const bx3d = R * Math.cos(boxLat) * Math.sin(boxLon);
+    const by3d = -R * Math.sin(boxLat);
+    const bz3d = R * Math.cos(boxLat) * Math.cos(boxLon);
+
+    // Only draw if on the visible hemisphere (z > 0)
+    if (bz3d > -R * 0.3) {
+      // Simple projection (weak perspective)
+      const scale = 1.0;
+      const bxp = cx + bx3d * scale;
+      const byp = cy + by3d * scale;
+
+      // Compute local tangent frame
+      // Surface normal at box location
+      const nx = Math.cos(boxLat) * Math.sin(boxLon);
+      const ny = -Math.sin(boxLat);
+      const nz = Math.cos(boxLat) * Math.cos(boxLon);
+
+      // Tangent vectors (east and north on sphere)
+      const ex = Math.cos(boxLon), ey = 0, ez = -Math.sin(boxLon);
+      const nrx = -Math.sin(boxLat) * Math.sin(boxLon);
+      const nry = -Math.cos(boxLat);
+      const nrz = -Math.sin(boxLat) * Math.cos(boxLon);
+
+      // Project box corners
+      const hw = boxAngW * R * 0.5;
+      const hh = boxAngH * R * 0.5;
+
+      function proj(dx, dy, dz) {
+        // dx along east, dy along north, dz along normal (outward)
+        const wx = dx * ex + dy * nrx + dz * nx;
+        const wy = dx * ey + dy * nry + dz * ny;
+        const wz = dx * ez + dy * nrz + dz * nz;
+        return [bxp + wx * scale, byp + wy * scale];
+      }
+
+      // 8 corners of the box: 4 at surface-depth, 4 at surface+height
+      const innerD = -boxDepth;
+      const outerD = boxHeight;
+      const corners = {
+        // bottom face (below surface)
+        b0: proj(-hw, -hh, innerD), b1: proj(hw, -hh, innerD),
+        b2: proj(hw, hh, innerD),   b3: proj(-hw, hh, innerD),
+        // top face (above surface)
+        t0: proj(-hw, -hh, outerD), t1: proj(hw, -hh, outerD),
+        t2: proj(hw, hh, outerD),   t3: proj(-hw, hh, outerD),
+      };
+
+      // Surface-level face (where the box intersects the photosphere)
+      const s0 = proj(-hw, -hh, 0), s1 = proj(hw, -hh, 0);
+      const s2 = proj(hw, hh, 0),   s3 = proj(-hw, hh, 0);
+
+      // Depth factor for fading (based on how face-on the box is)
+      const facing = Math.max(nz, 0);
+      const alpha = 0.3 + facing * 0.7;
+
+      // Draw the box — back faces first, then front
+
+      // Below-surface part (dashed, fainter — subsurface)
+      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = `rgba(230,145,56,${alpha * 0.3})`;
+      ctx.lineWidth = 1;
+      // vertical edges (surface to depth)
+      [[s0, corners.b0], [s1, corners.b1], [s2, corners.b2], [s3, corners.b3]].forEach(([a, b]) => {
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      });
+      // bottom face
+      ctx.beginPath();
+      ctx.moveTo(corners.b0[0], corners.b0[1]);
+      ctx.lineTo(corners.b1[0], corners.b1[1]);
+      ctx.lineTo(corners.b2[0], corners.b2[1]);
+      ctx.lineTo(corners.b3[0], corners.b3[1]);
+      ctx.closePath(); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Above-surface part (solid, brighter)
+      ctx.strokeStyle = `rgba(230,145,56,${alpha * 0.8})`;
+      ctx.lineWidth = 1.5;
+
+      // vertical edges (surface to top)
+      [[s0, corners.t0], [s1, corners.t1], [s2, corners.t2], [s3, corners.t3]].forEach(([a, b]) => {
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      });
+
+      // top face
+      ctx.fillStyle = `rgba(230,145,56,${alpha * 0.12})`;
+      ctx.strokeStyle = `rgba(230,145,56,${alpha * 0.9})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(corners.t0[0], corners.t0[1]);
+      ctx.lineTo(corners.t1[0], corners.t1[1]);
+      ctx.lineTo(corners.t2[0], corners.t2[1]);
+      ctx.lineTo(corners.t3[0], corners.t3[1]);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      // Surface intersection (the photosphere line)
+      ctx.strokeStyle = `rgba(106,168,79,${alpha * 0.6})`;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(s0[0], s0[1]); ctx.lineTo(s1[0], s1[1]);
+      ctx.lineTo(s2[0], s2[1]); ctx.lineTo(s3[0], s3[1]);
+      ctx.closePath(); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Label
+      if (facing > 0.2) {
+        const labelX = corners.t1[0] + 15;
+        const labelY = corners.t1[1] - 5;
+        ctx.fillStyle = `rgba(230,145,56,${alpha})`;
+        ctx.font = '13px Spectral';
+        ctx.textAlign = 'left';
+        ctx.fillText('simulation box', labelX, labelY);
+
+        // photosphere label
+        const sLabelX = s2[0] + 12;
+        const sLabelY = s2[1] + 3;
+        ctx.fillStyle = `rgba(106,168,79,${alpha * 0.8})`;
+        ctx.font = '11px Spectral';
+        ctx.fillText('photosphere', sLabelX, sLabelY);
+      }
+    }
+
+    animFrames['star'] = requestAnimationFrame(frame);
+  }
+  animFrames['star'] = requestAnimationFrame(frame);
+}
+
+// ── Pendulum diagram (animated) ──
+function animatePendulum() {
+  const canvas = document.getElementById('canvas-pendulum');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = 220 * dpr;
+  canvas.height = 220 * dpr;
+  canvas.style.width = '220px';
+  canvas.style.height = '220px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = 110, cy = 30; // pivot
+  const L = 130; // string length px
+  const maxAngle = 0.5; // radians
+
+  function frame(ts) {
+    const angle = maxAngle * Math.cos(ts / 400);
+    const bx = cx + L * Math.sin(angle);
+    const by = cy + L * Math.cos(angle);
+
+    ctx.clearRect(0, 0, 220, 220);
+
+    // pivot
+    ctx.fillStyle = '#888';
+    ctx.fillRect(cx - 20, cy - 3, 40, 3);
+
+    // dashed vertical (centre line)
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + L + 20); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // string
+    ctx.strokeStyle = '#aaa';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+
+    // bob
+    ctx.fillStyle = '#6db3f2';
+    ctx.beginPath(); ctx.arc(bx, by, 12, 0, Math.PI * 2); ctx.fill();
+
+    // x label (displacement arrow)
+    const restX = cx;
+    if (Math.abs(bx - restX) > 5) {
+      const arrowY = by + 22;
+      ctx.strokeStyle = '#6AA84F';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(restX, arrowY); ctx.lineTo(bx, arrowY); ctx.stroke();
+      // arrowhead
+      const dir = bx > restX ? -1 : 1;
+      ctx.beginPath();
+      ctx.moveTo(bx, arrowY);
+      ctx.lineTo(bx + dir * 6, arrowY - 4);
+      ctx.lineTo(bx + dir * 6, arrowY + 4);
+      ctx.closePath(); ctx.fillStyle = '#6AA84F'; ctx.fill();
+      // label
+      ctx.fillStyle = '#6AA84F';
+      ctx.font = '14px Spectral';
+      ctx.textAlign = 'center';
+      ctx.fillText('x', (restX + bx) / 2, arrowY - 7);
+    }
+
+    animFrames['pendulum'] = requestAnimationFrame(frame);
+  }
+  animFrames['pendulum'] = requestAnimationFrame(frame);
+}
+
+// ── Slide 4: Undamped ──
+function animateUndamped() {
+  stopAnim('undamped');
+  const canvas = document.getElementById('canvas-undamped');
+  const { ctx, w, h } = setupCanvas(canvas);
+  let t0 = null; const dur = 2800;
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const p = Math.min((ts - t0) / dur, 1);
+    ctx.clearRect(0, 0, w, h);
+    drawAxes(ctx, w, h);
+    drawCurve(ctx, w, h, undampedFn, tMax, p, '#6db3f2', 2);
+    if (p >= 1) {
+      setTimeout(() => document.getElementById('remark-undamped').classList.add('visible'), 200);
+      return;
+    }
+    animFrames['undamped'] = requestAnimationFrame(frame);
+  }
+  animFrames['undamped'] = requestAnimationFrame(frame);
+}
+
+// ── Slide 5: Damped ──
+function animateDamped() {
+  stopAnim('damped');
+  const canvas = document.getElementById('canvas-damped');
+  const { ctx, w, h } = setupCanvas(canvas);
+  let t0 = null; const dur = 2800;
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const p = Math.min((ts - t0) / dur, 1);
+    ctx.clearRect(0, 0, w, h);
+    drawAxes(ctx, w, h);
+    ctx.globalAlpha = 0.12;
+    drawCurve(ctx, w, h, undampedFn, tMax, 1, '#6db3f2', 1.5);
+    ctx.globalAlpha = 1.0;
+    drawEnvelope(ctx, w, h, gammaTrue, tMax, '#E69138');
+    drawCurve(ctx, w, h, (t) => dampedFn(t, gammaTrue), tMax, p, '#E69138', 2);
+    if (p >= 1) {
+      setTimeout(() => document.getElementById('remark-damped').classList.add('visible'), 200);
+      return;
+    }
+    animFrames['damped'] = requestAnimationFrame(frame);
+  }
+  animFrames['damped'] = requestAnimationFrame(frame);
+}
+
+// ── Slide 6: Tuning gamma ──
+function animateTuning() {
+  stopAnim('tuning');
+  const cSim = document.getElementById('canvas-tuning');
+  const cReal = document.getElementById('canvas-reality');
+  const { ctx: ctxS, w: wS, h: hS } = setupCanvas(cSim);
+  const { ctx: ctxR, w: wR, h: hR } = setupCanvas(cReal);
+
+  ctxR.clearRect(0, 0, wR, hR);
+  drawAxes(ctxR, wR, hR);
+  ctxR.globalAlpha = 0.15;
+  drawCurve(ctxR, wR, hR, (t) => dampedFn(t, gammaTrue), tMax, 1, '#6AA84F', 1.5);
+  ctxR.globalAlpha = 1.0;
+
+  const rng = mulberry32(42);
+  const midY = hR / 2, ampPx = (hR / 2) - 35;
+  ctxR.fillStyle = '#6AA84F';
+  for (let i = 0; i < 70; i++) {
+    const frac = i / 70, t = frac * tMax;
+    const val = dampedFn(t, gammaTrue) + (rng() - 0.5) * 0.12;
+    const px = 50 + frac * (wR - 70);
+    const py = midY - val * ampPx;
+    ctxR.beginPath(); ctxR.arc(px, py, 2.5, 0, Math.PI * 2); ctxR.fill();
+  }
+
+  let t0 = null; const dur = 4500;
+  const readout = document.getElementById('gamma-readout');
+
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const p = Math.min((ts - t0) / dur, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const gNow = eased * gammaTrue;
+
+    ctxS.clearRect(0, 0, wS, hS);
+    drawAxes(ctxS, wS, hS);
+    const simFn = (t) => dampedFn(t, Math.max(gNow, 0.005));
+    const mix = eased;
+    const r = Math.round(255 * (1 - mix) + 106 * mix);
+    const g = Math.round(107 * (1 - mix) + 168 * mix);
+    const b = Math.round(107 * (1 - mix) + 79 * mix);
+    const col = `rgb(${r},${g},${b})`;
+    drawCurve(ctxS, wS, hS, simFn, tMax, 1, col, 2);
+    if (gNow > 0.05) drawEnvelope(ctxS, wS, hS, gNow, tMax, col);
+    readout.textContent = `\u03B3 = ${gNow.toFixed(2)}`;
+
+    if (p >= 1) {
+      readout.style.color = '#6AA84F';
+      readout.textContent = `\u03B3 = ${gammaTrue.toFixed(2)}`;
+      setTimeout(() => document.getElementById('remark-tuning').classList.add('visible'), 300);
+      return;
+    }
+    animFrames['tuning'] = requestAnimationFrame(frame);
+  }
+  animFrames['tuning'] = requestAnimationFrame(frame);
+}
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// ── Sunspot video ──
+function startSunspotVideo() {
+  const v = document.getElementById('sunspot-video');
+  if (v) { v.currentTime = 0; v.play(); }
+}
+function stopSunspotVideo() {
+  const v = document.getElementById('sunspot-video');
+  if (v) v.pause();
+}
+
+// ── Slide enter ──
+const entered = new Set();
+function onSlideEnter(idx) {
+  const id = slides[idx].id;
+  if (id === 'slide-3' && !entered.has('pendulum')) {
+    entered.add('pendulum');
+    setTimeout(animatePendulum, 200);
+  }
+  if (id === 'slide-4' && !entered.has('undamped')) {
+    entered.add('undamped');
+    setTimeout(animateUndamped, 300);
+  }
+  if (id === 'slide-5' && !entered.has('damped')) {
+    entered.add('damped');
+    setTimeout(animateDamped, 300);
+  }
+  if (id === 'slide-6' && !entered.has('tuning')) {
+    entered.add('tuning');
+    setTimeout(animateTuning, 300);
+  }
+  if (id === 'slide-7' && !entered.has('euler')) {
+    entered.add('euler');
+    setTimeout(animateEuler, 300);
+  }
+  if (id === 'slide-8' && !entered.has('diffusion')) {
+    entered.add('diffusion');
+    setTimeout(() => { animateDiffusion2D(); animateGrid3D(); }, 300);
+  }
+  if (id === 'slide-11' && !entered.has('star')) {
+    entered.add('star');
+    setTimeout(animateStar, 200);
+  }
+  if (id === 'slide-13') {
+    setTimeout(startSunspotVideo, 300);
+  } else {
+    stopSunspotVideo();
+  }
+}
+
+window.addEventListener('resize', () => {
+  // only re-trigger plot animations, not pendulum
+  if (slides[current].id === 'slide-4') { entered.delete('undamped'); }
+  if (slides[current].id === 'slide-5') { entered.delete('damped'); }
+  if (slides[current].id === 'slide-6') { entered.delete('tuning'); }
+  document.querySelectorAll('.remark').forEach(r => r.classList.remove('visible'));
+  onSlideEnter(current);
+});
+</script>
+
+</body>
+</html>
