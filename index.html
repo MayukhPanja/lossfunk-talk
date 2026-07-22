@@ -800,16 +800,29 @@
       and we know what the answer should be. If our synthetic population
       cannot reproduce something this basic, there is no point scaling up.
     </div>
-    <div class="col-text body-text" style="font-size:14pt; line-height:2.0;">
-      <span class="green">The experiment:</span>
-      <br>
-      &bull;&ensp;Identical water bottle at <span class="blue">€20.00</span> vs <span class="orange">€19.99</span><br>
-      &bull;&ensp;Only the price changes &mdash; same product, same prompt<br>
-      &bull;&ensp;Same personas across both conditions<br>
-      &bull;&ensp;Each persona produces a purchase likelihood from 0&ndash;10<br>
-      &bull;&ensp;Double-blind &mdash; each call sees one product at one price<br>
-      &bull;&ensp;Monte Carlo: population sizes of 100, 200, 300, 400, 500<br>
-      &bull;&ensp;5 independent runs at each size
+    <div class="col-text" style="font-size:11pt;">
+      <div style="font-family:'Fira Code',monospace; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:1rem 1.2rem; line-height:1.7; color:#888;">
+        <span style="color:#6AA84F;">Stainless Steel Water Bottle</span><br>
+        Stay hydrated with this durable stainless steel water bottle
+        designed for everyday use. It holds 750 ml, keeps drinks cold
+        for up to 12 hours, and fits easily in bags or cup holders.
+        The leak-proof cap and slim design make it perfect for commuting,
+        workouts, or school. Built to last and easy to clean, it's a
+        simple essential you'll use daily.
+        <div style="display:flex; align-items:center; gap:0.8rem; margin-top:1rem; justify-content:center;">
+          <span style="color:#6db3f2; font-size:16pt; font-weight:600; background:rgba(107,179,242,0.1); border:1px solid rgba(107,179,242,0.3); border-radius:6px; padding:0.3rem 0.8rem;">€20.00</span>
+          <span style="color:#aaa; font-size:14pt;">&rarr;</span>
+          <span style="color:#E69138; font-size:16pt; font-weight:600; background:rgba(230,145,56,0.1); border:1px solid rgba(230,145,56,0.3); border-radius:6px; padding:0.3rem 0.8rem;">€19.99</span>
+        </div>
+        <p style="color:#aaa; font-size:10pt; text-align:center; margin-top:0.5rem; font-family:'Spectral',serif; font-style:italic;">
+          Everything else is identical.
+        </p>
+      </div>
+      <div class="body-text" style="font-size:12pt; line-height:1.9; margin-top:1rem; color:#ccc;">
+        &bull;&ensp;Each persona rates purchase likelihood from <span style="color:#fff;">0&ndash;10</span><br>
+        &bull;&ensp;Double-blind: each API call sees one price only<br>
+        &bull;&ensp;Monte Carlo: 5 runs &times; 5 population sizes (100&ndash;500)
+      </div>
     </div>
   </div>
 </div>
@@ -847,37 +860,57 @@
 <!-- ════════════════════════════════════════════ -->
 <div class="slide" id="slide-22">
   <h2>Results</h2>
-  <div style="display:flex; flex-direction:column; align-items:center; gap:1.2rem;">
-    <table style="border-collapse:collapse; font-family:'Fira Code',monospace; font-size:12pt;">
-      <thead>
-        <tr style="border-bottom:2px solid rgba(255,255,255,0.2);">
-          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;">n</th>
-          <th style="padding:0.4rem 1.2rem; text-align:center; color:#E69138;">€19.99</th>
-          <th style="padding:0.4rem 1.2rem; text-align:center; color:#6db3f2;">€20.00</th>
-          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;">diff</th>
-          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;">p-value</th>
-          <th style="padding:0.4rem 1.2rem; text-align:center; color:#888;"></th>
-        </tr>
-      </thead>
-      <tbody style="color:#ccc;">
-        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">100</td><td style="text-align:center;">6.52</td><td style="text-align:center;">6.24</td><td style="text-align:center; color:#6AA84F;">+0.28</td><td style="text-align:center;">0.015</td><td style="text-align:center; color:#6AA84F;">&#10003;</td></tr>
-        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">200</td><td style="text-align:center;">6.53</td><td style="text-align:center;">6.32</td><td style="text-align:center; color:#6AA84F;">+0.21</td><td style="text-align:center;">0.006</td><td style="text-align:center; color:#6AA84F;">&#10003;</td></tr>
-        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">300</td><td style="text-align:center;">6.42</td><td style="text-align:center;">6.37</td><td style="text-align:center; color:#888;">+0.05</td><td style="text-align:center;">0.392</td><td style="text-align:center; color:#888;">&#10007;</td></tr>
-        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">400</td><td style="text-align:center;">6.51</td><td style="text-align:center;">6.41</td><td style="text-align:center; color:#888;">+0.10</td><td style="text-align:center;">0.052</td><td style="text-align:center; color:#888;">&#10007;</td></tr>
-        <tr><td style="padding:0.3rem 1.2rem; text-align:center;">500</td><td style="text-align:center;">6.55</td><td style="text-align:center;">6.42</td><td style="text-align:center; color:#6AA84F;">+0.13</td><td style="text-align:center;">0.008</td><td style="text-align:center; color:#6AA84F;">&#10003;</td></tr>
-      </tbody>
-    </table>
-    <div class="body-text" style="font-size:14pt; max-width:70%; text-align:center; line-height:1.8;">
-      The charm price consistently scores higher across all population sizes.
-      The effect is small (~0.1&ndash;0.3 on a 10-point scale) but
-      statistically significant at 100, 200, and 500 personas.
-      <br><br>
-      Within-persona SD across runs: <span class="orange">0.78</span>.
-      Between-persona SD: <span class="green">1.52</span>.
-      The demographic signal is roughly twice the run-to-run noise &mdash;
-      the personas carry meaningful individual variation.
+  <div style="display:flex; gap:3rem; align-items:flex-start; margin-top:1.5rem;">
+
+    <!-- Left: Directional correctness -->
+    <div style="flex:1; text-align:center;">
+      <h3 style="color:#E69138; font-size:15pt; margin-bottom:1.2rem;">Directional correctness</h3>
+      <p class="body-text" style="font-size:14pt; line-height:1.8; color:#ccc; margin-bottom:1.2rem;">
+        In each simulation, does €19.99 score higher than €20.00?
+      </p>
+      <div style="font-family:'Fira Code',monospace; font-size:42pt; color:#6AA84F; margin:0.8rem 0;">
+        22 / 25
+      </div>
+      <p class="body-text" style="font-size:15pt; color:#aaa;">simulations get it right &mdash; <span class="green">88%</span></p>
+
+      <table style="border-collapse:collapse; font-family:'Fira Code',monospace; font-size:11pt; margin:1.5rem auto 0; color:#aaa;">
+        <tr><td style="padding:0.2rem 0.8rem; text-align:right;">n=100</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">4/5</td>
+            <td style="padding:0.2rem 0.8rem; text-align:right;">n=200</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">5/5</td></tr>
+        <tr><td style="padding:0.2rem 0.8rem; text-align:right;">n=300</td><td style="padding:0.2rem 0.8rem; color:#ccc;">3/5</td>
+            <td style="padding:0.2rem 0.8rem; text-align:right;">n=400</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">5/5</td></tr>
+        <tr><td style="padding:0.2rem 0.8rem; text-align:right;">n=500</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">5/5</td>
+            <td></td><td></td></tr>
+      </table>
     </div>
+
+    <!-- Divider -->
+    <div style="width:1px; background:rgba(255,255,255,0.15); align-self:stretch;"></div>
+
+    <!-- Right: Lift -->
+    <div style="flex:1; text-align:center;">
+      <h3 style="color:#E69138; font-size:15pt; margin-bottom:1.2rem;">Lift from charm pricing</h3>
+      <p class="body-text" style="font-size:14pt; line-height:1.8; color:#ccc; margin-bottom:1.2rem;">
+        How much higher does €19.99 score, on average?
+      </p>
+      <div style="font-family:'Fira Code',monospace; font-size:42pt; color:#6AA84F; margin:0.8rem 0;">
+        +2.5%
+      </div>
+      <p class="body-text" style="font-size:15pt; color:#aaa;">average rating lift across all 25 simulations</p>
+
+      <table style="border-collapse:collapse; font-family:'Fira Code',monospace; font-size:11pt; margin:1.5rem auto 0; color:#aaa;">
+        <tr><td style="padding:0.2rem 0.8rem; text-align:right;">n=100</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">+4.6%</td>
+            <td style="padding:0.2rem 0.8rem; text-align:right;">n=200</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">+3.3%</td></tr>
+        <tr><td style="padding:0.2rem 0.8rem; text-align:right;">n=300</td><td style="padding:0.2rem 0.8rem; color:#ccc;">+0.9%</td>
+            <td style="padding:0.2rem 0.8rem; text-align:right;">n=400</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">+1.7%</td></tr>
+        <tr><td style="padding:0.2rem 0.8rem; text-align:right;">n=500</td><td style="padding:0.2rem 0.8rem; color:#6AA84F;">+2.0%</td>
+            <td></td><td></td></tr>
+      </table>
+    </div>
+
   </div>
+  <p class="body-text" style="font-size:12pt; color:#888; text-align:center; margin-top:1.5rem;">
+    25 Monte Carlo simulations: 5 runs &times; 5 population sizes (100&ndash;500 personas), same personas, only the price changes.
+  </p>
 </div>
 
 <!-- ════════════════════════════════════════════ -->
